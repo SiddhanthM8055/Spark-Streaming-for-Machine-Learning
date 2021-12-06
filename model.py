@@ -9,21 +9,21 @@ class myModel:
         self.weights = weights
 
 def fetchNewModel(model):
-    if(model == 'MNB'):
-        return myModel('MultinomialNB',MultinomialNB())
-    elif(model == 'SGD'):
-        return myModel('SGDClassifier',linear_model.SGDClassifier(alpha=0.0001,random_state=3,loss='squared_hinge'))
-    elif(model == 'PAC'):
-        return myModel('PassiveAggressiveClassifier',linear_model.PassiveAggressiveClassifier(C=0.000001,random_state=3))
-    elif(model == 'MLP'):
-        return myModel('MLPClassifier',MLPClassifier(activation='logistic',random_state=3))
+    if(model[:3] == 'MNB'):
+        return myModel(model,MultinomialNB())
+    elif(model[:3] == 'SGD'):
+        return myModel(model,linear_model.SGDClassifier(alpha=0.0001,random_state=3,loss='squared_hinge'))
+    elif(model[:3] == 'PAC'):
+        return myModel(model,linear_model.PassiveAggressiveClassifier(C=0.000001,random_state=3))
+    elif(model[:3] == 'MLP'):
+        return myModel(model,MLPClassifier(activation='logistic',random_state=3))
 
 def fetchTrainedModel(model):
-    if(model == 'MNB'):
-        return myModel('MultinomialNB',pickle.load(open('MNB.sav', 'rb')))
-    elif(model == 'SGD'):
-        return myModel('SGDClassifier',pickle.load(open('SGD.sav', 'rb')))
-    elif(model == 'PAC'):
-        return myModel('PassiveAggressiveClassifier',pickle.load(open('PAC.sav', 'rb')))
-    elif(model=='MLP'):
-        return myModel('MLPClassifier',pickle.load(open('MLP.sav', 'rb')))
+    if(model[:3] == 'MNB'):
+        return myModel(model,pickle.load(open('MNB.sav', 'rb')))
+    elif(model[:3] == 'SGD'):
+        return myModel(model,pickle.load(open('SGD.sav', 'rb')))
+    elif(model[:3] == 'PAC'):
+        return myModel(model,pickle.load(open('PAC.sav', 'rb')))
+    elif(model[:3] == 'MLP'):
+        return myModel(model,pickle.load(open('MLP.sav', 'rb')))
