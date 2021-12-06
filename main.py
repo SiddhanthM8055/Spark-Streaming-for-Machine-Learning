@@ -18,8 +18,14 @@ parser.add_argument('--stream-rate','-sr', help='Adjust streaming rate', require
 parser.add_argument('--test','-t',help='Test the model',required=False, 
                     type=bool,default=False)
 
-parser.add_argument('--model','-m',help='Model to be trained or tested',required=True,
-                    type=str)
+parser.add_argument('--model','-m',help='Model to be trained or tested',required=False,
+                    type=str,default='MLP')
+
+parser.add_argument('--trainEval','-te',help="Train and validate model's performance on each batch",required=False,
+                    type=bool,default=True)
+
+parser.add_argument('--clustering','-c',help="Do clustering on data",required=False,
+                    type=bool,default=False)
 
 if __name__ == '__main__':
 
@@ -28,6 +34,8 @@ if __name__ == '__main__':
     streamingRate = args.stream_rate
     test_flag = args.test
     model_cmd = args.model
+    eval_flag = args.trainEval
+    clustering_flag = args.clustering
 
     sc = SparkContext.getOrCreate()
     sc.setLogLevel("OFF")
@@ -59,10 +67,19 @@ if __name__ == '__main__':
 
     rows_DS = list_JSON_DS.map(lambda x: Row(subject=x['feature0'],body=x['feature1'],classLabel=x['feature2']))
 
-    if(not test_flag):
-        rows_DS.foreachRDD(lambda time,rdd : preprocessAndTrainModel(time,rdd,ssc,stop_flag,data_prep_pipe,model))
+    if(not clustering_flag):
+
+        if(not test_flag):
+            if(eval_flag):
+                rows_DS.foreachRDD(lambda time,rdd : preprocessAndTrainEvalModel(time,rdd,ssc,stop_flag,data_prep_pipe,model))
+            else:
+                rows_DS.foreachRDD(lambda time,rdd : preprocessAndTrainModel(time,rdd,ssc,stop_flag,data_prep_pipe,model))
+        else:
+            rows_DS.foreachRDD(lambda time,rdd : preprocessAndTestModel(time,rdd,ssc,stop_flag,data_prep_pipe,model))
+
     else:
-        rows_DS.foreachRDD(lambda time,rdd : preprocessAndTestModel(time,rdd,ssc,stop_flag,data_prep_pipe,model))
+
+        rows_DS.foreachRDD(lambda time,rdd : preprocessAndClustering(time,rdd,ssc,stop_flag,data_prep_pipe))
             
     ssc.start()
     ssc.awaitTermination()
